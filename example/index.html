@@ -17,27 +17,9 @@
       .overlay {
         position: fixed;
         inset: 0;
-        background: rgba(255, 0, 0, 0.15);
+        background: transparent;
         z-index: 2147483640;
         display: block;
-      }
-      .overlay > div {
-        margin: 40px;
-        padding: 16px;
-        background: #fff;
-        border: 2px solid #c00;
-        width: 320px;
-        position: relative;
-      }
-      #overlay-close {
-        position: absolute;
-        top: 8px;
-        right: 10px;
-        border: 0;
-        background: transparent;
-        font-size: 20px;
-        line-height: 1;
-        cursor: pointer;
       }
       .modal-backdrop {
         position: fixed;
@@ -79,6 +61,15 @@
         line-height: 1;
         cursor: pointer;
       }
+      #debug {
+        margin-top: 12px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 13px;
+        padding: 6px 8px;
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        width: fit-content;
+      }
       @media (max-width: 600px) {
         .modal {
           width: 94%;
@@ -98,6 +89,7 @@
     <p>Build first: <code>npm run build</code>. Then open this file in a browser.</p>
     <button id="spawn">Simulate Honey initialization</button>
     <pre id="log"></pre>
+    <div id="debug" aria-live="polite">Detections: 0</div>
     <div class="modal-backdrop" id="honey-modal">
       <div class="modal" role="dialog" aria-modal="true" aria-labelledby="honey-modal-title">
         <button class="modal-close" id="modal-close" aria-label="Close">×</button>
@@ -120,6 +112,8 @@
       const btnSpawn = document.getElementById("spawn");
       const modal = document.getElementById("honey-modal");
       const modalClose = document.getElementById("modal-close");
+      const debugEl = document.getElementById("debug");
+      let detectionCount = 0;
 
       function log(msg) {
         logEl.textContent += msg + "\n";
@@ -128,6 +122,8 @@
       const handle = window.fckHoney.listen((el) => {
         log("Matched overlay: #" + el.id + " z-index " + getComputedStyle(el).zIndex);
         if (modal) modal.style.display = "flex";
+        detectionCount += 1;
+        if (debugEl) debugEl.textContent = "Detections: " + detectionCount;
       });
 
       function makeOverlay() {
@@ -135,15 +131,7 @@
         const overlay = document.createElement("div");
         overlay.className = "overlay";
         overlay.id = id;
-        overlay.innerHTML =
-          '<div><button aria-label="Close overlay" id="overlay-close">×</button>Test overlay ' + id + "</div>";
         document.body.appendChild(overlay);
-        const closeBtn = document.getElementById("overlay-close");
-        if (closeBtn) {
-          closeBtn.addEventListener("click", () => {
-            overlay.remove();
-          });
-        }
         return overlay;
       }
 
