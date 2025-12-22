@@ -3,8 +3,15 @@
   "version": "0.1.0",
   "description": "Detects Honey browser extension overlays for merchants.",
   "license": "MIT",
+  "main": "dist/honey-detect.js",
+  "types": "dist/honey-detect.d.ts",
+  "jsdelivr": "dist/honey-detect.js",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
+    "prepublishOnly": "npm run build",
     "clean": "rm -rf dist"
   },
   "devDependencies": {
