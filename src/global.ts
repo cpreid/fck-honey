@@ -100,6 +100,7 @@ function startHoneyOverlayObserver(options: ObserverOptions = {}): ObserverHandl
     for (const m of mutations) {
       if (
         debug &&
+        document.body &&
         (m.target === document.body || (m.target instanceof Node && document.body.contains(m.target)))
       ) {
         console.log("+++ body mutation", m.type, m.target);
