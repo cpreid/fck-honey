@@ -1,16 +1,23 @@
 {
   "name": "fck-honey",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Detects Honey browser extension overlays for merchants.",
   "license": "MIT",
   "main": "dist/honey-detect.js",
-  "types": "dist/honey-detect.d.ts",
+  "module": "dist/esm/index.js",
+  "types": "dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/esm/index.js",
+      "default": "./dist/honey-detect.js"
+    }
+  },
   "jsdelivr": "dist/honey-detect.js",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.esm.json && tsc -p tsconfig.global.json",
     "prepublishOnly": "npm run build",
     "clean": "rm -rf dist"
   },

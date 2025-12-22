@@ -4,15 +4,10 @@ Open source lib for Merchants to detect if an end user has Honey browser extensi
 ## Inspiration
 [MegaLag exposed Honey as a scam](https://www.youtube.com/watch?v=wwB3FmbcC88)
 
-## Install (jsDelivr)
+## Usage (Browser Global)
 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/fck-honey@0.1/dist/honey-detect.min.js"></script>
-```
-
-## Use
-
-```html
 <script>
   window.fckHoney.listen((el) => {
     // Decide how you want to handle this.
@@ -20,6 +15,18 @@ Open source lib for Merchants to detect if an end user has Honey browser extensi
     console.log("Honey overlay detected:", el);
   });
 </script>
+```
+
+## Usage (ESM)
+
+```js
+import { listen } from "fck-honey";
+
+listen((el) => {
+  // Decide how you want to handle this.
+  // Example: pause checkout and notify the user.
+  console.log("Honey overlay detected:", el);
+});
 ```
 
 ## Local Dev

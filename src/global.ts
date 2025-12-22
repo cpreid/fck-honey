@@ -1,16 +1,16 @@
-export type MatchCallback = (el: HTMLDivElement) => void;
+type MatchCallback = (el: HTMLDivElement) => void;
 
-export interface ObserverOptions {
+interface ObserverOptions {
   onMatch?: MatchCallback;
   uuidGate?: boolean;
   zNearMax?: number;
 }
 
-export interface ObserverHandle {
+interface ObserverHandle {
   stop: () => void;
 }
 
-export interface ListenHandle {
+interface ListenHandle {
   stop: () => void;
 }
 
@@ -64,7 +64,7 @@ function checkNode(
   }
 }
 
-export function startHoneyOverlayObserver(options: ObserverOptions = {}): ObserverHandle {
+function startHoneyOverlayObserver(options: ObserverOptions = {}): ObserverHandle {
   const seen: HTMLDivElement[] = [];
   const zNearMax = options.zNearMax ?? DEFAULT_Z_NEAR_MAX;
   const uuidGate = options.uuidGate ?? true;
@@ -110,6 +110,19 @@ export function startHoneyOverlayObserver(options: ObserverOptions = {}): Observ
   };
 }
 
-export function listen(onMatch: MatchCallback, options: Omit<ObserverOptions, "onMatch"> = {}): ListenHandle {
+function listen(onMatch: MatchCallback, options: Omit<ObserverOptions, "onMatch"> = {}): ListenHandle {
   return startHoneyOverlayObserver({ ...options, onMatch });
+}
+
+if (typeof window !== "undefined") {
+  window.fckHoney = window.fckHoney || {};
+  window.fckHoney.startHoneyOverlayObserver = startHoneyOverlayObserver;
+  window.fckHoney.listen = listen;
+}
+
+interface Window {
+  fckHoney?: {
+    startHoneyOverlayObserver?: typeof startHoneyOverlayObserver;
+    listen?: typeof listen;
+  };
 }

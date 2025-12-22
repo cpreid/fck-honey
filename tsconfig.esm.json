@@ -1,13 +1,15 @@
 {
   "compilerOptions": {
     "target": "ES5",
-    "module": "none",
-    "outFile": "dist/honey-detect.js",
+    "module": "ES2015",
+    "outDir": "dist/esm",
+    "rootDir": "src",
     "declaration": true,
+    "declarationDir": "dist/types",
     "lib": ["DOM", "ES5"],
     "strict": true,
     "noImplicitAny": true,
     "noEmitOnError": true
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/index.ts"]
 }
