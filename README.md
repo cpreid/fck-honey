@@ -1,6 +1,8 @@
 # fck-honey
 Open source lib for Merchants to detect if an end user has Honey browser extension installed
 
+<img width="968" height="532" alt="image" src="https://github.com/user-attachments/assets/b0bcccd6-d922-436d-8b0d-dcd4334a9219" />
+
 ## Inspiration
 [MegaLag exposed Honey as a scam](https://www.youtube.com/watch?v=wwB3FmbcC88)
 
