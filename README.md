@@ -1,5 +1,5 @@
 # fck-honey
-Open source lib for Merchants to detect if an end user has Honey browser extension installed
+Open source lib for Merchants to detect if a customer has Honey browser extension installed
 
 <img width="968" height="532" alt="image" src="https://github.com/user-attachments/assets/b0bcccd6-d922-436d-8b0d-dcd4334a9219" />
 
