@@ -39,18 +39,87 @@
         line-height: 1;
         cursor: pointer;
       }
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.55);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 2147483641;
+      }
+      .modal {
+        width: 92%;
+        max-width: 640px;
+        background: #fff;
+        border: 2px solid #111;
+        padding: 16px 16px 12px;
+        position: relative;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+      }
+      .modal h2 {
+        margin: 0 0 8px 0;
+        font-size: 20px;
+      }
+      .modal p {
+        margin: 0 0 12px 0;
+      }
+      .modal iframe {
+        width: 100%;
+        height: 240px;
+        border: 0;
+      }
+      .modal-close {
+        position: absolute;
+        top: 8px;
+        right: 10px;
+        border: 0;
+        background: transparent;
+        font-size: 20px;
+        line-height: 1;
+        cursor: pointer;
+      }
+      @media (max-width: 600px) {
+        .modal {
+          width: 94%;
+          padding: 14px 12px 10px;
+        }
+        .modal h2 {
+          font-size: 18px;
+        }
+        .modal iframe {
+          height: 200px;
+        }
+      }
     </style>
   </head>
   <body>
     <h1>fck-honey demo</h1>
     <p>Build first: <code>npm run build</code>. Then open this file in a browser.</p>
-    <button id="spawn">Spawn overlay</button>
+    <button id="spawn">Simulate Honey initialization</button>
     <pre id="log"></pre>
+    <div class="modal-backdrop" id="honey-modal">
+      <div class="modal" role="dialog" aria-modal="true" aria-labelledby="honey-modal-title">
+        <button class="modal-close" id="modal-close" aria-label="Close">×</button>
+        <h2 id="honey-modal-title">Please disable the Honey extension</h2>
+        <p>
+          This site can’t proceed with Honey enabled. Please disable it to continue your checkout.
+        </p>
+        <iframe
+          src="https://www.youtube.com/embed/wwB3FmbcC88"
+          title="Why Honey is a scam (video)"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen
+        ></iframe>
+      </div>
+    </div>
 
     <script src="../dist/honey-detect.js"></script>
     <script>
       const logEl = document.getElementById("log");
       const btnSpawn = document.getElementById("spawn");
+      const modal = document.getElementById("honey-modal");
+      const modalClose = document.getElementById("modal-close");
 
       function log(msg) {
         logEl.textContent += msg + "\n";
@@ -58,6 +127,7 @@
 
       const handle = window.fckHoney.listen((el) => {
         log("Matched overlay: #" + el.id + " z-index " + getComputedStyle(el).zIndex);
+        if (modal) modal.style.display = "flex";
       });
 
       function makeOverlay() {
@@ -82,6 +152,11 @@
         if (current) current.remove();
         current = makeOverlay();
       });
+      if (modalClose && modal) {
+        modalClose.addEventListener("click", () => {
+          modal.style.display = "none";
+        });
+      }
     </script>
   </body>
 </html>
