@@ -41,3 +41,9 @@ window.fckHoney.listen((warn, el) => {
   // Set removeHoney to false if you want to keep the Honey element for some reason.
 }, { removeHoney: false });
 ```
+
+```js
+window.fckHoney.listen((warn) => {
+  // Stop observing if nothing is detected within 10 seconds.
+}, { unbindAfterSeconds: 10 });
+```

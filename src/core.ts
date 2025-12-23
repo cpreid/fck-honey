@@ -10,6 +10,7 @@ export interface ObserverOptions {
   zNearMax?: number;
   debug?: boolean;
   removeHoney?: boolean;
+  unbindAfterSeconds?: number;
 }
 
 export interface ObserverHandle {
@@ -105,19 +106,12 @@ function scanElement(
   zNearMax: number,
   uuidGate: boolean,
   debug: boolean,
-  removeHoney: boolean,
-  onMatch: MatchCallback,
-  warn: WarnCallback
+  handleMatch: (match: HTMLDivElement) => void
 ): void {
   if (el instanceof HTMLDivElement && el.matches(TARGET_SELECTOR)) {
     if (seen.indexOf(el) === -1 && looksLikeTargetDiv(el, zNearMax, uuidGate, debug)) {
       seen.push(el);
-      if (removeHoney && el.parentNode) el.parentNode.removeChild(el);
-      if (removeHoney) {
-        onMatch(warn);
-      } else {
-        onMatch(warn, el);
-      }
+      handleMatch(el);
     }
   }
 
@@ -127,12 +121,7 @@ function scanElement(
     const d = divs[i] as HTMLDivElement;
     if (seen.indexOf(d) === -1 && looksLikeTargetDiv(d, zNearMax, uuidGate, debug)) {
       seen.push(d);
-      if (removeHoney && d.parentNode) d.parentNode.removeChild(d);
-      if (removeHoney) {
-        onMatch(warn);
-      } else {
-        onMatch(warn, d);
-      }
+      handleMatch(d);
     }
   }
 }
@@ -143,11 +132,31 @@ export function startHoneyOverlayObserver(options: ObserverOptions = {}): Observ
   const uuidGate = options.uuidGate ?? true;
   const debug = options.debug ?? false;
   const removeHoney = options.removeHoney ?? true;
+  const unbindAfterSeconds = options.unbindAfterSeconds;
   const warn: WarnCallback = (message) => showOverlay(message);
   const onMatch =
     options.onMatch ??
     (() => {});
+  let matched = false;
+  let unbindTimer: number | undefined;
 
+  const handleMatch = (el: HTMLDivElement): void => {
+    matched = true;
+    if (typeof unbindTimer === "number") {
+      clearTimeout(unbindTimer);
+      unbindTimer = undefined;
+    }
+    if (removeHoney && el.parentNode) el.parentNode.removeChild(el);
+    if (removeHoney) {
+      onMatch(warn);
+    } else {
+      onMatch(warn, el);
+    }
+  };
+
+  // Greedy, page-wide observer: Honey overlays can be inserted late, moved,
+  // or have z-index applied after insertion. We watch all DOM changes so we
+  // can catch the element no matter when it appears or how it's styled.
   const mo = new MutationObserver((mutations) => {
     for (const m of mutations) {
       if (
@@ -164,16 +173,16 @@ export function startHoneyOverlayObserver(options: ObserverOptions = {}): Observ
           for (let i = 0; i < m.addedNodes.length; i += 1) {
             const node = m.addedNodes[i];
             if (node.nodeType === Node.ELEMENT_NODE) {
-              scanElement(node as Element, seen, zNearMax, uuidGate, debug, removeHoney, onMatch, warn);
+              scanElement(node as Element, seen, zNearMax, uuidGate, debug, handleMatch);
             }
           }
         }
         if (m.target instanceof Element) {
-          scanElement(m.target, seen, zNearMax, uuidGate, debug, removeHoney, onMatch, warn);
+          scanElement(m.target, seen, zNearMax, uuidGate, debug, handleMatch);
         }
       } else if (m.type === "attributes") {
         if (m.target instanceof Element) {
-          scanElement(m.target, seen, zNearMax, uuidGate, debug, removeHoney, onMatch, warn);
+          scanElement(m.target, seen, zNearMax, uuidGate, debug, handleMatch);
         }
       }
     }
@@ -186,10 +195,23 @@ export function startHoneyOverlayObserver(options: ObserverOptions = {}): Observ
     attributeFilter: ["style", "class", "id"]
   });
 
-  scanElement(document.documentElement, seen, zNearMax, uuidGate, debug, removeHoney, onMatch, warn);
+  scanElement(document.documentElement, seen, zNearMax, uuidGate, debug, handleMatch);
+
+  if (typeof unbindAfterSeconds === "number" && unbindAfterSeconds > 0) {
+    unbindTimer = window.setTimeout(() => {
+      if (!matched) {
+        mo.disconnect();
+      }
+    }, unbindAfterSeconds * 1000);
+  }
 
   return {
-    stop: () => mo.disconnect()
+    stop: () => {
+      mo.disconnect();
+      if (typeof unbindTimer === "number") {
+        clearTimeout(unbindTimer);
+      }
+    }
   };
 }
 
