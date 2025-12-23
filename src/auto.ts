@@ -9,7 +9,7 @@ function buildAutoModalHtml(vendor: string): string {
     '<div class="modal" role="dialog" aria-modal="true" aria-labelledby="honey-modal-title">' +
     '<h2 id="honey-modal-title">' +
     '<span style="font-weight:400;">This site can’t proceed with </span>' +
-    '<strong style="text-transform:uppercase;">' +
+    "<strong>" +
     vendor +
     '</strong><span style="font-weight:400;"> Extension enabled</span>' +
     "</h2>" +
@@ -28,7 +28,8 @@ if (typeof window !== "undefined") {
   window.fckHoney.version = version;
 
   window.fckHoneyHandle = window.fckHoney.listen((warn, _el, vendor) => {
-    const vendorLabel = vendor || "honey";
+    const vendorName = vendor || "honey";
+    const vendorLabel = vendorName.charAt(0).toUpperCase() + vendorName.slice(1);
     warn(buildAutoModalHtml(vendorLabel));
   });
 }

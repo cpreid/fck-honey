@@ -2,7 +2,7 @@ import { VERSION } from "./version";
 
 export const version = VERSION;
 export type WarnCallback = (message: string) => () => void;
-export type DetectedVendor = "honey" | "Capital One Shopping";
+export type DetectedVendor = "honey" | "Capital One Shopping" | "Rakuten";
 export type MatchCallback = (warn: WarnCallback, el?: HTMLDivElement, vendor?: DetectedVendor) => void;
 
 export interface ObserverOptions {
@@ -95,10 +95,6 @@ function hasNearMaxZIndex(el: HTMLDivElement, zNearMax: number, debug: boolean):
       if (debug) console.log("+++ reject: display none", el);
       return false;
     }
-    if (el.shadowRoot) {
-      if (debug) console.log("+++ reject: shadowRoot", el);
-      return false;
-    }
     return true;
   }
 
@@ -112,24 +108,20 @@ function hasNearMaxZIndex(el: HTMLDivElement, zNearMax: number, debug: boolean):
     if (debug) console.log("+++ reject: display none", el);
     return false;
   }
-  if (el.shadowRoot) {
-    if (debug) console.log("+++ reject: shadowRoot", el);
-    return false;
-  }
-
   return true;
 }
 
 type VendorMatcher = {
   name: DetectedVendor;
-  matches: (el: HTMLDivElement, uuidGate: boolean, debug: boolean) => boolean;
+  matches: (el: HTMLDivElement, zNearMax: number, uuidGate: boolean, debug: boolean) => boolean;
 };
 
 // Each matcher should only check vendor-specific flags; shared z-index gating happens earlier.
 const VENDOR_MATCHERS: VendorMatcher[] = [
   {
     name: "honey",
-    matches: (el, uuidGate, debug) => {
+    matches: (el, zNearMax, uuidGate, debug) => {
+      if (!hasNearMaxZIndex(el, zNearMax, debug)) return false;
       if (!el.id) {
         if (debug) console.log("+++ reject: no id", el);
         return false;
@@ -138,18 +130,42 @@ const VENDOR_MATCHERS: VendorMatcher[] = [
         if (debug) console.log("+++ reject: uuid", el.id);
         return false;
       }
+      if (el.shadowRoot) {
+        if (debug) console.log("+++ reject: shadowRoot", el);
+        return false;
+      }
       return true;
     }
   },
   {
     name: "Capital One Shopping",
-    matches: (el, _uuidGate, debug) => {
+    matches: (el, zNearMax, _uuidGate, debug) => {
+      if (!hasNearMaxZIndex(el, zNearMax, debug)) return false;
       const dataGuid = getDataGuidAttribute(el);
       if (!dataGuid) {
         if (debug) console.log("+++ reject: no data guid", el);
         return false;
       }
+      if (el.shadowRoot) {
+        if (debug) console.log("+++ reject: shadowRoot", el);
+        return false;
+      }
       if (debug) console.log("+++ match capitalone", dataGuid, el);
+      return true;
+    }
+  },
+  {
+    name: "Rakuten",
+    matches: (el, _zNearMax, _uuidGate, debug) => {
+      if (!el.shadowRoot) {
+        if (debug) console.log("+++ reject: no shadowRoot", el);
+        return false;
+      }
+      const style = el.shadowRoot.querySelector("style#rr-style-content");
+      if (!style) {
+        if (debug) console.log("+++ reject: no rr-style-content", el);
+        return false;
+      }
       return true;
     }
   }
@@ -161,11 +177,9 @@ function getVendorForDiv(
   uuidGate: boolean,
   debug: boolean
 ): DetectedVendor | null {
-  if (!hasNearMaxZIndex(el, zNearMax, debug)) return null;
-
   for (let i = 0; i < VENDOR_MATCHERS.length; i += 1) {
     const matcher = VENDOR_MATCHERS[i];
-    if (matcher.matches(el, uuidGate, debug)) {
+    if (matcher.matches(el, zNearMax, uuidGate, debug)) {
       if (debug) console.log("+++ match", matcher.name, el);
       return matcher.name;
     }
