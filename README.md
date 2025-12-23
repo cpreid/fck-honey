@@ -4,7 +4,7 @@ Open source lib for Merchants to detect if a customer has Honey browser extensio
 <img width="1307" height="561" alt="image" src="https://github.com/user-attachments/assets/33b2554b-fc90-4b4b-b917-4ed088664200" />
 
 ## Easy install (no-JS)
-This will automatically listen for Honey and show a default warning to the user to disable the extension as shown above).
+This will automatically listen for Honey and show a default warning to the user to disable the extension as shown above). Install this at the very top of the `<head>` in your webpage to ensure it runs prior to Honey.
 ```html
 <script src="https://cdn.jsdelivr.net/npm/fck-honey@latest/dist/auto.min.js"></script>
 ```
