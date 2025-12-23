@@ -1,5 +1,6 @@
-# fck-honey
-Open source lib for Merchants to detect if a customer has Honey browser extension installed (as well as Capital One Shopping and Rakuten). View the [Demo video here 🎥](https://youtu.be/Em9Fjil8Xds).
+# Coupon Shield
+Tool for eComm merchants to detect, warn and prevent a customer from shopping using a shady coupon browser extension (Honey, Capital One Shopping, Rakuten). 
+<br /><br />View the [Demo video here 🎥](https://youtu.be/Em9Fjil8Xds).
 
 <img width="1307" height="561" alt="image" src="https://github.com/user-attachments/assets/33b2554b-fc90-4b4b-b917-4ed088664200" />
 
