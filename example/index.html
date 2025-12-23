@@ -17,11 +17,15 @@
           log("Matched overlay: #" + el.id + " z-index " + getComputedStyle(el).zIndex);
           warn(
             '<div class="modal" role="dialog" aria-modal="true" aria-labelledby="honey-modal-title">' +
-              '<h2 id="honey-modal-title">Please disable the Honey extension</h2>' +
-              "<p>This site can’t proceed with Honey enabled. Please disable it to continue your checkout.</p>" +
-              '<iframe src="https://www.youtube.com/embed/wwB3FmbcC88" title="Why Honey is a scam (video)" ' +
-              'allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" ' +
-              "allowfullscreen></iframe>" +
+              '<h2 id="honey-modal-title">This site can’t proceed with Honey enabled</h2>' +
+              '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px 0;">' +
+                '<a href="https://help.joinhoney.com/article/26-how-do-i-uninstall-honey" target="_blank" rel="noopener noreferrer" style="display:block;padding:10px 12px;background:#e6eef7;color:#0b1b2b;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;border-radius:6px;flex:1 1 220px;">' +
+                  "Please disable it to continue your checkout." +
+                "</a>" +
+                '<a href="https://www.youtube.com/watch?v=wwB3FmbcC88" target="_blank" rel="noopener noreferrer" style="display:block;padding:10px 12px;background:#e6eef7;color:#0b1b2b;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;border-radius:6px;flex:1 1 220px;">' +
+                  "Here is why 🎥" +
+                "</a>" +
+              "</div>" +
               "</div>"
           );
           detectionCount += 1;
@@ -41,34 +45,6 @@
         padding: 8px 12px;
         font-size: 16px;
       }
-      .overlay {
-        position: fixed;
-        inset: 0;
-        background: transparent;
-        z-index: 2147483640;
-        display: block;
-      }
-      .modal {
-        width: 92%;
-        max-width: 640px;
-        background: #fff;
-        border: 2px solid #111;
-        padding: 16px 16px 12px;
-        position: relative;
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
-      }
-      .modal h2 {
-        margin: 0 0 8px 0;
-        font-size: 20px;
-      }
-      .modal p {
-        margin: 0 0 12px 0;
-      }
-      .modal iframe {
-        width: 100%;
-        height: 240px;
-        border: 0;
-      }
       #debug {
         margin-top: 12px;
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
@@ -77,18 +53,6 @@
         background: #f5f5f5;
         border: 1px solid #ddd;
         width: fit-content;
-      }
-      @media (max-width: 600px) {
-        .modal {
-          width: 94%;
-          padding: 14px 12px 10px;
-        }
-        .modal h2 {
-          font-size: 18px;
-        }
-        .modal iframe {
-          height: 200px;
-        }
       }
     </style>
   </head>
@@ -104,7 +68,7 @@
       function makeOverlay() {
         const id = crypto.randomUUID ? crypto.randomUUID() : "00000000-0000-0000-0000-000000000000";
         const overlay = document.createElement("div");
-        overlay.className = "overlay";
+        overlay.style.cssText = "position:fixed;inset:0;z-index:2147483640;display:block;background:transparent;";
         overlay.id = id;
         document.body.appendChild(overlay);
         return overlay;

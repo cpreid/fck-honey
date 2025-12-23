@@ -1,6 +1,6 @@
 {
   "name": "fck-honey",
-  "version": "0.3.4",
+  "version": "0.3.5",
   "description": "Detects Honey browser extension overlays for merchants.",
   "license": "MIT",
   "main": "dist/honey-detect.js",

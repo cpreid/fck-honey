@@ -33,7 +33,7 @@ function showOverlay(message: string): () => void {
     const style = document.createElement("style");
     style.id = OVERLAY_STYLE_ID;
     style.textContent =
-      ".simple-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:999999;display:flex;align-items:center;justify-content:center;pointer-events:all;}" +
+      ".simple-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:2147483647;display:flex;align-items:center;justify-content:center;pointer-events:all;}" +
       ".simple-overlay-message{background:#ffffff;padding:16px 20px;border-radius:8px;font-size:14px;max-width:80%;text-align:center;box-shadow:0 10px 30px rgba(0,0,0,0.3);}";
     document.head.appendChild(style);
   }
