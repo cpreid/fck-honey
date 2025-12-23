@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>fck-honey test page (auto)</title>
+    <script src="../dist/auto.js"></script>
+    <script>
+      let detectionCount = 0;
+
+      function log(msg) {
+        const logEl = document.getElementById("log");
+        if (logEl) logEl.textContent += msg + "\n";
+      }
+
+      function noteDetection() {
+        detectionCount += 1;
+        log("Detected overlay (auto)");
+        const debugEl = document.getElementById("debug");
+        if (debugEl) debugEl.textContent = "Detections: " + detectionCount;
+      }
+
+      // Fallback UX: if the auto modal shows up, the user sees it.
+      // For manual simulation we increment detection when the test overlay is added.
+    </script>
+    <style>
+      body {
+        font-family: Georgia, "Times New Roman", serif;
+        padding: 24px;
+      }
+      button {
+        margin-right: 8px;
+        padding: 8px 12px;
+        font-size: 16px;
+      }
+      #debug {
+        margin-top: 12px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 13px;
+        padding: 6px 8px;
+        background: #f5f5f5;
+        border: 1px solid #ddd;
+        width: fit-content;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>fck-honey demo</h1>
+    <p>Build first: <code>npm run build</code>. Then open this file in a browser.</p>
+    <button id="spawn">Simulate Honey initialization</button>
+    <pre id="log"></pre>
+    <div id="debug" aria-live="polite">Detections: 0</div>
+    <script>
+      const btnSpawn = document.getElementById("spawn");
+
+      function makeOverlay() {
+        const id = crypto.randomUUID ? crypto.randomUUID() : "00000000-0000-0000-0000-000000000000";
+        const overlay = document.createElement("div");
+        overlay.style.cssText = "position:fixed;inset:0;z-index:2147483640;display:block;background:transparent;";
+        overlay.id = id;
+        document.body.appendChild(overlay);
+        return overlay;
+      }
+
+      let current;
+      btnSpawn.addEventListener("click", () => {
+        if (current) current.remove();
+        current = makeOverlay();
+        noteDetection();
+      });
+    </script>
+  </body>
+</html>
