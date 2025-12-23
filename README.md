@@ -14,8 +14,9 @@ This will automatically listen for Honey and show a default warning to the user 
 ```html
 <script src="https://cdn.jsdelivr.net/npm/fck-honey@latest/dist/honey-detect.min.js"></script>
 <script>
-window.fckHoney.listen((warn) => {
+window.fckHoney.listen((warn, el, vendor) => {
     // Decide how you want to handle this. Native warn function allows you to tell the user to disable Honey.
+    // vendor is "honey" or "Capital One Shopping"
     warn("You must disable the Honey extension to continue.");
   });
 </script>
@@ -30,8 +31,9 @@ npm install fck-honey
 ```js
 import { listen } from "fck-honey";
 
-listen((warn) => {
+listen((warn, el, vendor) => {
   // Decide how you want to handle this. Native warn function allows you to tell the user to disable Honey.
+  // vendor is "honey" or "Capital One Shopping"
   warn("You must disable the Honey extension to continue.");
 });
 ```
@@ -39,9 +41,10 @@ listen((warn) => {
 ## Advanced Options
 
 ```js
-window.fckHoney.listen((warn, el) => {
+window.fckHoney.listen((warn, el, vendor) => {
   // removeHoney defaults to true (element is auto-removed).
   // Set removeHoney to false if you want to keep the Honey element for some reason.
+  // vendor is "honey" or "Capital One Shopping"
 }, { removeHoney: false });
 ```
 

@@ -2,7 +2,8 @@ import { VERSION } from "./version";
 
 export const version = VERSION;
 export type WarnCallback = (message: string) => () => void;
-export type MatchCallback = (warn: WarnCallback, el?: HTMLDivElement) => void;
+export type DetectedVendor = "honey" | "Capital One Shopping";
+export type MatchCallback = (warn: WarnCallback, el?: HTMLDivElement, vendor?: DetectedVendor) => void;
 
 export interface ObserverOptions {
   onMatch?: MatchCallback;
@@ -23,7 +24,7 @@ export interface ListenHandle {
 
 const DEFAULT_Z_NEAR_MAX = 2147480000;
 const UUIDISH_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const TARGET_SELECTOR = "div[id]";
+const TARGET_SELECTOR = "div";
 const OVERLAY_STYLE_ID = "simple-overlay-styles";
 
 function showOverlay(message: string): () => void {
@@ -66,21 +67,21 @@ function parseZIndex(cs: CSSStyleDeclaration, el: HTMLElement): number | null {
   return isFinite(inline) ? inline : null;
 }
 
-function looksLikeTargetDiv(
-  el: HTMLDivElement,
-  zNearMax: number,
-  uuidGate: boolean,
-  debug: boolean
-): boolean {
-  if (!el.id) {
-    if (debug) console.log("+++ reject: no id", el);
-    return false;
+function getDataGuidAttribute(el: HTMLDivElement): string | null {
+  for (let i = 0; i < el.attributes.length; i += 1) {
+    const attr = el.attributes[i];
+    if (!attr) continue;
+    if (attr.name.indexOf("data-") === 0) {
+      const suffix = attr.name.slice(5);
+      if (UUIDISH_RE.test(suffix) && attr.value === "true") {
+        return attr.name;
+      }
+    }
   }
-  if (uuidGate && !UUIDISH_RE.test(el.id)) {
-    if (debug) console.log("+++ reject: uuid", el.id);
-    return false;
-  }
+  return null;
+}
 
+function hasNearMaxZIndex(el: HTMLDivElement, zNearMax: number, debug: boolean): boolean {
   // Fast path: if inline z-index is missing or below threshold, skip expensive getComputedStyle
   const inlineZ = parseInt(el.style.zIndex, 10);
   if (!isFinite(inlineZ) || inlineZ < zNearMax) {
@@ -98,8 +99,6 @@ function looksLikeTargetDiv(
       if (debug) console.log("+++ reject: shadowRoot", el);
       return false;
     }
-
-    if (debug) console.log("+++ match", el);
     return true;
   }
 
@@ -118,8 +117,62 @@ function looksLikeTargetDiv(
     return false;
   }
 
-  if (debug) console.log("+++ match", el);
   return true;
+}
+
+type VendorMatcher = {
+  name: DetectedVendor;
+  matches: (el: HTMLDivElement, uuidGate: boolean, debug: boolean) => boolean;
+};
+
+// Each matcher should only check vendor-specific flags; shared z-index gating happens earlier.
+const VENDOR_MATCHERS: VendorMatcher[] = [
+  {
+    name: "honey",
+    matches: (el, uuidGate, debug) => {
+      if (!el.id) {
+        if (debug) console.log("+++ reject: no id", el);
+        return false;
+      }
+      if (uuidGate && !UUIDISH_RE.test(el.id)) {
+        if (debug) console.log("+++ reject: uuid", el.id);
+        return false;
+      }
+      return true;
+    }
+  },
+  {
+    name: "Capital One Shopping",
+    matches: (el, _uuidGate, debug) => {
+      const dataGuid = getDataGuidAttribute(el);
+      if (!dataGuid) {
+        if (debug) console.log("+++ reject: no data guid", el);
+        return false;
+      }
+      if (debug) console.log("+++ match capitalone", dataGuid, el);
+      return true;
+    }
+  }
+];
+
+function getVendorForDiv(
+  el: HTMLDivElement,
+  zNearMax: number,
+  uuidGate: boolean,
+  debug: boolean
+): DetectedVendor | null {
+  if (!hasNearMaxZIndex(el, zNearMax, debug)) return null;
+
+  for (let i = 0; i < VENDOR_MATCHERS.length; i += 1) {
+    const matcher = VENDOR_MATCHERS[i];
+    if (matcher.matches(el, uuidGate, debug)) {
+      if (debug) console.log("+++ match", matcher.name, el);
+      return matcher.name;
+    }
+  }
+
+  if (debug) console.log("+++ reject: no vendor match", el);
+  return null;
 }
 
 function scanElement(
@@ -128,12 +181,13 @@ function scanElement(
   zNearMax: number,
   uuidGate: boolean,
   debug: boolean,
-  handleMatch: (match: HTMLDivElement) => void
+  handleMatch: (match: HTMLDivElement, vendor: DetectedVendor) => void
 ): void {
   if (el instanceof HTMLDivElement && el.matches(TARGET_SELECTOR)) {
-    if (seen.indexOf(el) === -1 && looksLikeTargetDiv(el, zNearMax, uuidGate, debug)) {
+    const vendor = getVendorForDiv(el, zNearMax, uuidGate, debug);
+    if (seen.indexOf(el) === -1 && vendor) {
       seen.push(el);
-      handleMatch(el);
+      handleMatch(el, vendor);
     }
   }
 
@@ -141,9 +195,10 @@ function scanElement(
   if (!divs) return;
   for (let i = 0; i < divs.length; i += 1) {
     const d = divs[i] as HTMLDivElement;
-    if (seen.indexOf(d) === -1 && looksLikeTargetDiv(d, zNearMax, uuidGate, debug)) {
+    const vendor = getVendorForDiv(d, zNearMax, uuidGate, debug);
+    if (seen.indexOf(d) === -1 && vendor) {
       seen.push(d);
-      handleMatch(d);
+      handleMatch(d, vendor);
     }
   }
 }
@@ -162,7 +217,7 @@ export function startHoneyOverlayObserver(options: ObserverOptions = {}): Observ
   let matched = false;
   let unbindTimer: number | undefined;
 
-  const handleMatch = (el: HTMLDivElement): void => {
+  const handleMatch = (el: HTMLDivElement, vendor: DetectedVendor): void => {
     matched = true;
     if (typeof unbindTimer === "number") {
       clearTimeout(unbindTimer);
@@ -170,9 +225,9 @@ export function startHoneyOverlayObserver(options: ObserverOptions = {}): Observ
     }
     if (removeHoney && el.parentNode) el.parentNode.removeChild(el);
     if (removeHoney) {
-      onMatch(warn);
+      onMatch(warn, undefined, vendor);
     } else {
-      onMatch(warn, el);
+      onMatch(warn, el, vendor);
     }
   };
 

@@ -8,26 +8,34 @@
     <script>
       let detectionCount = 0;
 
+      function buildAutoModalHtml(vendor) {
+        const query = encodeURIComponent(
+          "Why is the " + vendor + " browser extension shady, and how can i uninstall it?"
+        );
+        const helpUrl = "http://chatgpt.com/?q=" + query;
+        return (
+          '<div class="modal" role="dialog" aria-modal="true" aria-labelledby="honey-modal-title">' +
+            '<h2 id="honey-modal-title">This site can’t proceed with ' + vendor + ' enabled</h2>' +
+            '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px 0;">' +
+              '<a href="' + helpUrl + '" target="_blank" rel="noopener noreferrer" style="display:block;padding:10px 12px;background:#e6eef7;color:#0b1b2b;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;border-radius:6px;flex:1 1 220px;">' +
+                "Please disable it to continue your checkout." +
+              "</a>" +
+              '<a href="https://www.youtube.com/watch?v=wwB3FmbcC88" target="_blank" rel="noopener noreferrer" style="display:block;padding:10px 12px;background:#e6eef7;color:#0b1b2b;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;border-radius:6px;flex:1 1 220px;">' +
+                "Here is why 🎥" +
+              "</a>" +
+            "</div>" +
+            "</div>"
+        );
+      }
+
       function log(msg) {
         const logEl = document.getElementById("log");
         if (logEl) logEl.textContent += msg + "\n";
       }
 
-      window.fckHoneyHandle = window.fckHoney.listen((warn, el) => {
+      window.fckHoneyHandle = window.fckHoney.listen((warn, el, vendor) => {
           log("Matched overlay: #" + el.id + " z-index " + getComputedStyle(el).zIndex);
-          warn(
-            '<div class="modal" role="dialog" aria-modal="true" aria-labelledby="honey-modal-title">' +
-              '<h2 id="honey-modal-title">This site can’t proceed with Honey enabled</h2>' +
-              '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 12px 0;">' +
-                '<a href="https://help.joinhoney.com/article/26-how-do-i-uninstall-honey" target="_blank" rel="noopener noreferrer" style="display:block;padding:10px 12px;background:#e6eef7;color:#0b1b2b;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;border-radius:6px;flex:1 1 220px;">' +
-                  "Please disable it to continue your checkout." +
-                "</a>" +
-                '<a href="https://www.youtube.com/watch?v=wwB3FmbcC88" target="_blank" rel="noopener noreferrer" style="display:block;padding:10px 12px;background:#e6eef7;color:#0b1b2b;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;border-radius:6px;flex:1 1 220px;">' +
-                  "Here is why 🎥" +
-                "</a>" +
-              "</div>" +
-              "</div>"
-          );
+          warn(buildAutoModalHtml(vendor || "honey"));
           detectionCount += 1;
           const debugEl = document.getElementById("debug");
           if (debugEl) debugEl.textContent = "Detections: " + detectionCount;          
@@ -60,10 +68,12 @@
     <h1>fck-honey demo</h1>
     <p>Build first: <code>npm run build</code>. Then open this file in a browser.</p>
     <button id="spawn">Simulate Honey initialization</button>
+    <button id="spawn-capitalone">Simulate Capital One</button>
     <pre id="log"></pre>
     <div id="debug" aria-live="polite">Detections: 0</div>
     <script>
       const btnSpawn = document.getElementById("spawn");
+      const btnSpawnCapitalOne = document.getElementById("spawn-capitalone");
 
       function makeOverlay() {
         const id = crypto.randomUUID ? crypto.randomUUID() : "00000000-0000-0000-0000-000000000000";
@@ -78,6 +88,18 @@
       btnSpawn.addEventListener("click", () => {
         if (current) current.remove();
         current = makeOverlay();
+      });
+
+      btnSpawnCapitalOne.addEventListener("click", () => {
+        if (current) current.remove();
+        const overlay = document.createElement("div");
+        overlay.setAttribute(
+          "style",
+          "all: initial !important; position: relative !important; z-index: 2147483647 !important; view-transition-name: vt-sp-app !important"
+        );
+        overlay.setAttribute("data-c0b2a62f-08cd-4858-84ce-6c75d0d5ffbc", "true");
+        document.documentElement.appendChild(overlay);
+        current = overlay;
       });
     </script>
   </body>
