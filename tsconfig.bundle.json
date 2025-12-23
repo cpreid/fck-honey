@@ -9,5 +9,5 @@
     "noImplicitAny": true,
     "noEmitOnError": true
   },
-  "include": ["src/global.ts"]
+  "include": ["src/global.ts", "src/auto.ts"]
 }

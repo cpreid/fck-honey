@@ -18,7 +18,7 @@
   ],
   "scripts": {
     "prebuild": "node scripts/write-version.cjs",
-    "build": "tsc -p tsconfig.esm.json && tsc -p tsconfig.bundle.json && esbuild dist/bundle-tmp/global.js --bundle --format=iife --platform=browser --target=es5 --outfile=dist/honey-detect.js",
+    "build": "tsc -p tsconfig.esm.json && tsc -p tsconfig.bundle.json && esbuild dist/bundle-tmp/global.js --bundle --format=iife --platform=browser --target=es5 --outfile=dist/honey-detect.js && esbuild dist/bundle-tmp/auto.js --bundle --format=iife --platform=browser --target=es5 --outfile=dist/auto.js",
     "prepublishOnly": "npm run build && node scripts/check-version.cjs",
     "clean": "rm -rf dist"
   },
