@@ -5,7 +5,7 @@ Tool for eComm merchants to detect, warn and prevent a customer from shopping us
 <img width="1307" height="561" alt="image" src="https://github.com/user-attachments/assets/33b2554b-fc90-4b4b-b917-4ed088664200" />
 
 ## Easy install (no-JS)
-This will automatically listen for Honey and show a default warning to the user to disable the extension as shown above). Install this at the very top of the `<head>` in your webpage to ensure it runs prior to Honey.
+This will automatically detect a coupon extension and show a default warning to the user to disable the extension as shown above). Install this at the very top of the `<head>` in your webpage to ensure it runs prior to the extension.
 [jsDelivr package page](https://www.jsdelivr.com/package/npm/coupon-shield).
 ```html
 <script src="https://cdn.jsdelivr.net/npm/coupon-shield@latest/dist/auto.min.js"></script>
@@ -17,7 +17,7 @@ This will automatically listen for Honey and show a default warning to the user 
 <script src="https://cdn.jsdelivr.net/npm/coupon-shield@latest/dist/couponshield.min.js"></script>
 <script>
 window.couponShield.listen((warn, el, vendor) => {
-    // Decide how you want to handle this. Native warn function allows you to tell the user to disable Honey.
+    // Decide how you want to handle this. Native warn function allows you to tell the user to disable the extension.
     // vendor is "honey", "Capital One Shopping", or "Rakuten"
     warn("You must disable the Honey extension to continue.");
   });
@@ -34,7 +34,7 @@ npm install coupon-shield
 import { listen } from "coupon-shield";
 
 listen((warn, el, vendor) => {
-  // Decide how you want to handle this. Native warn function allows you to tell the user to disable Honey.
+  // Decide how you want to handle this. Native warn function allows you to tell the user to disable the extension.
   // vendor is "honey", "Capital One Shopping", or "Rakuten"
   warn("You must disable the Honey extension to continue.");
 });
@@ -44,8 +44,8 @@ listen((warn, el, vendor) => {
 
 ```js
 window.couponShield.listen((warn, el, vendor) => {
-  // removeHoney defaults to true (element is auto-removed).
-  // Set removeHoney to false if you want to keep the Honey element for some reason.
+  // removeHoney defaults to true (extension element loaded onto the page is auto-removed).
+  // Set removeHoney to false if you want to keep the extension element for some reason.
   // vendor is "honey", "Capital One Shopping", or "Rakuten"
 }, { removeHoney: false });
 ```
