@@ -50,12 +50,14 @@
     <button id="spawn">Simulate Honey initialization</button>
     <button id="spawn-capitalone">Simulate Capital One</button>
     <button id="spawn-rakuten">Simulate Rakuten</button>
+    <button id="spawn-klarna">Simulate Klarna</button>
     <pre id="log"></pre>
     <div id="debug" aria-live="polite">Detections: 0</div>
     <script>
       const btnSpawn = document.getElementById("spawn");
       const btnSpawnCapitalOne = document.getElementById("spawn-capitalone");
       const btnSpawnRakuten = document.getElementById("spawn-rakuten");
+      const btnSpawnKlarna = document.getElementById("spawn-klarna");
 
       function makeOverlay() {
         const id = crypto.randomUUID ? crypto.randomUUID() : "00000000-0000-0000-0000-000000000000";
@@ -97,6 +99,15 @@
         shadowRoot.appendChild(style);
         document.body.appendChild(host);
         current = host;
+        noteDetection();
+      });
+
+      btnSpawnKlarna.addEventListener("click", () => {
+        if (current) current.remove();
+        const overlay = document.createElement("div");
+        overlay.setAttribute("data-klarna-plugin-views-container", "");
+        document.documentElement.appendChild(overlay);
+        current = overlay;
         noteDetection();
       });
     </script>
